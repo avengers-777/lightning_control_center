@@ -4,14 +4,19 @@ import {
   Button,
   Descriptions,
   Dropdown,
+  Input,
+  InputNumber,
   Modal,
   Radio,
   RadioGroup,
   Row,
+  Select,
+  Space,
   Spin,
   TabPane,
   Tabs,
   Tag,
+  Toast,
   Typography,
 } from "@douyinfe/semi-ui";
 import { useContext, useState } from "react";
@@ -22,6 +27,16 @@ import { Tools } from "@/utils/Tools";
 import { ResourceDisplayType } from "@/types/enums/ResourceDisplayType";
 import { ResourceConverter } from "@/types/app/ResourceConverter";
 import { Permission } from "@/types/data/Permission";
+import { AccountType } from "@/types/enums/AccountType";
+import {
+  getBasicData,
+  getPermissionData,
+  getResourceDate,
+} from "./TronAccountOperateDate";
+import { TransactionType } from "@/types/enums/TransactionType";
+import { Currency, convertFloatToSmallestUnit, formatAmountAsFloat } from "@/types/enums/Currency";
+import { isString } from "antd/es/button";
+import { TransferRequest } from "@/types/dto/TransferRequest";
 
 export function TronAccountOperate({ record }: { record: TronAccount }) {
   const { Text } = Typography;
@@ -32,12 +47,19 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
     displayType,
     setDisplayType,
     resourceConverter,
+    transfer
   } = useContext(TronAccountContext);
   const [visible, setVisible] = useState(false);
   const [changeStatusVisible, setChangeStatusVisible] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(record.status);
   const [loading, setLoading] = useState(false);
   const [updateBalanceLoading, setUpdateBalanceLoading] = useState(false);
+  const [transferVisible, setTransferVisible] = useState(false);
+  const [transferType, setTransferType] = useState(TransactionType.INTERNAL);
+  const [currency, setCurrency] = useState(Currency.TRX);
+  const [amount, setAmount] = useState<number>(0);
+  const [transferLoading,setTransferLoading] = useState(false)
+  const [to, setTo] = useState("");
   const showDialog = () => {
     setVisible(true);
   };
@@ -71,97 +93,47 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
       setUpdateBalanceLoading(false);
     }
   }
-  const basicData = [
-    { key: "ID", value: record.id },
-    { key: "标签", value: record.label },
-    { key: "地址", value: record.base58CheckAddress },
-    { key: "创建时间", value: record.randerCreateDate() },
-    { key: "更新时间", value: record.randerUpdateDate() },
-    { key: "账号类型", value: record.accountType },
-    { key: "状态", value: record.status },
-  ];
-  const resourceDate = [
-    { key: "余额", value: record.balance.getRanderAmount() },
-    {
-      key: "已质押能量",
-      value: record.balance.getRanderEnergy(displayType, resourceConverter),
-    },
-    {
-      key: "已质押带宽",
-      value: record.balance.getRanderBandwidth(displayType, resourceConverter),
-    },
-    {
-      key: "已委托能量",
-      value: record.balance.getRanderDelegatedForEnergy(
-        displayType,
-        resourceConverter
-      ),
-    },
-    {
-      key: "已委托带宽",
-      value: record.balance.getRanderBandwidth(displayType, resourceConverter),
-    },
-    {
-      key: "获得的能量",
-      value: record.balance.getRanderAcquiredDelegatedForEnergy(
-        displayType,
-        resourceConverter
-      ),
-    },
-    {
-      key: "获得的带宽",
-      value: record.balance.getRanderAcquiredDelegatedForBandwidth(
-        displayType,
-        resourceConverter
-      ),
-    },
-    {
-      key: "可委托能量",
-      value: record.balance.getRanderCanDelegatedForEnergy(
-        displayType,
-        resourceConverter
-      ),
-    },
-    {
-      key: "可委托带宽",
-      value: record.balance.getRanderCanDelegatedForBandwidth(
-        displayType,
-        resourceConverter
-      ),
-    },
-  ];
-  function getPermissionData(permission: Permission) {
-    const permissionData = [
-      { key: "授权给", value: permission.authorizedTo },
-      { key: "授权类型", value: permission.authType },
-      { key: "临界点", value: permission.threshold },
-      { key: "权重", value: permission.weight },
-      {
-        key: "权限",
-        value: permission.operations.map((item, index) => (
-          <Row key={index}>
-            <Tag style={{ padding: 8, margin: 8 }} key={index}>
-              {item}
-            </Tag>
-          </Row>
-        )),
-      },
-      { key: "权限ID", value: permission.permissionId },
-      {
-        key: "TXID",
-        value: <div style={{ width: 250 }}>{permission.txid}</div>,
-      },
-      { key: "区块高度", value: permission.blockHeight },
-      {
-        key: "区块时间",
-        value: Tools.formatTimestampToLocalTime(permission.blockTimeStamp),
-      },
-      {
-        key: "更新时间",
-        value: Tools.formatTimestampToLocalTime(permission.updateDate),
-      },
-    ];
-    return permissionData;
+  async function onClickTransfer() {
+    setTransferVisible(true);
+  }
+  const handleTransferOk = async () => {
+    if (to != "" && amount != 0){
+      setTransferLoading(true)
+      const body:TransferRequest = {
+        type: transferType,
+        currency: currency,
+        amount: convertFloatToSmallestUnit(amount, currency),
+        to: to,
+        from: record.id
+      }
+      await transfer(body)
+      
+      setTransferVisible(false);
+      setTransferLoading(false)
+      await Tools.delay(5000)
+      await search()
+      
+    }else{
+      Toast.warning("参数不正确")
+    }
+
+  };
+  const handleTransferCancel = () => {
+    setTransferVisible(false);
+  };
+  function handleCurrencyChange(value: any) {
+    if (value) {
+      setCurrency(value);
+    } else {
+      setCurrency(Currency.TRX);
+    }
+  }
+  function handlerAmountChange(value: string | number) {
+    if (typeof value === 'number' && !isNaN(value)) {
+      setAmount(value);
+    } else {
+      setAmount(0);
+    }
   }
 
   return (
@@ -185,16 +157,16 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
       >
         <Tabs type="line">
           <TabPane tab="基本信息" itemKey="1">
-            <Descriptions data={basicData}></Descriptions>
+            <Descriptions data={getBasicData(record)}></Descriptions>
           </TabPane>
           <TabPane tab="资源信息" itemKey="2">
             <RadioGroup
               style={{ marginBottom: 8 }}
               type="button"
               buttonSize="middle"
-              defaultValue={displayType}
               aria-label="显示类型"
               name="desplay type"
+              value={displayType}
               onChange={(event) => setDisplayType(event.target.value)}
             >
               {Object.keys(ResourceDisplayType).map((item) => (
@@ -203,7 +175,9 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
                 </Radio>
               ))}
             </RadioGroup>
-            <Descriptions data={resourceDate}></Descriptions>
+            <Descriptions
+              data={getResourceDate(record, resourceConverter, displayType)}
+            ></Descriptions>
           </TabPane>
           <TabPane tab="授权信息" itemKey="3">
             {record.permissionSet.map((item) => {
@@ -229,7 +203,6 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
         <RadioGroup
           type="button"
           buttonSize="middle"
-          defaultValue={selectedStatus}
           aria-label="选择状态"
           value={selectedStatus}
           name="selected status"
@@ -242,9 +215,55 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
           ))}
         </RadioGroup>
       </Modal>
+      <Modal
+        title={"TRX转账"}
+        visible={transferVisible}
+        onOk={handleTransferOk}
+        onCancel={handleTransferCancel}
+        closeOnEsc={true}
+        okButtonProps={{ loading: transferLoading }}
+      >
+        <Space vertical spacing={"loose"} align="start">
+            <RadioGroup
+              type="button"
+              buttonSize="middle"
+              aria-label="选择转账类型"
+              value={transferType}
+              name="transfer type"
+              onChange={(event) => setTransferType(event.target.value)}
+            >
+              {Object.keys(TransactionType).map((item) => (
+                <Radio key={item} value={item}>
+                  {item}
+                </Radio>
+              ))}
+            </RadioGroup>
+            <Select
+              value={currency}
+              onChange={handleCurrencyChange}
+              style={{ width: 120 }}
+            >
+              {Object.keys(Currency).map((item) => (
+                <Select.Option key={item} value={item}>
+                  {item}
+                </Select.Option>
+              ))}
+            </Select>
+            <Input style={{width:250}} placeholder={transferType == TransactionType.INTERNAL ? "ID" : "地址"} value={to} onChange={value => setTo(value)}></Input>
+            <InputNumber
+            min={0}
+              value={amount}
+              onChange={handlerAmountChange}
+              max={formatAmountAsFloat(record.balance.amount, Currency.TRX)}
+            />
+        </Space>
+      </Modal>
       <Dropdown
         render={
           <Dropdown.Menu>
+            {record.accountType == AccountType.INTERNAL && (
+              <Dropdown.Item onClick={onClickTransfer}>转账</Dropdown.Item>
+            )}
             <Dropdown.Item onClick={onClickChangeStatusDropdown}>
               更改状态
             </Dropdown.Item>

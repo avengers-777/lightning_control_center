@@ -240,7 +240,7 @@ export function TronAccountManager() {
               <Space>
               <RadioGroup
                 type="button"
-                defaultValue={accountType}
+                value={accountType}
                 aria-label="账号类型"
                 name="account type"
                 onChange={(event) => {
@@ -256,9 +256,9 @@ export function TronAccountManager() {
               </RadioGroup>
               <RadioGroup
                 type="button"
-                defaultValue={displayType}
                 aria-label="显示类型"
                 name="desplay type"
+                value={displayType}
                 onChange={(event) => setDisplayType(event.target.value)}
               >
                 {Object.keys(ResourceDisplayType).map((item) => (

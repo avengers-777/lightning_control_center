@@ -26,6 +26,7 @@ import { NavItemProps, SubNavProps } from "@douyinfe/semi-ui/lib/es/navigation";
 import { AppContext } from "./store";
 import { TronAccountManager } from "@/components/TronAccountManager";
 import { RouteProps } from "@douyinfe/semi-ui/lib/es/breadcrumb";
+import { NavigationTarget } from "@/types/enums/NavigationTarget";
 
 const routerItems = [
   // {
@@ -45,19 +46,19 @@ const routerItems = [
   },
  
   {
-    itemKey: "TronAccountManager",
+    itemKey: NavigationTarget.TRON_ACCOUNT_MANARGER,
     text: "账号管理",
     icon: <IconTopbuzzLogo size="large"/>,
   },
   {
-    itemKey: "Setting",
+    itemKey: NavigationTarget.SETTING,
     text: "设置",
     icon: <IconSetting size="large" />,
   },
 ]
 
 const routerMap: { [key: string]: ReactNode } = {
-  TronAccountManager: <TronAccountManager/>,
+  TRON_ACCOUNT_MANARGER: <TronAccountManager/>,
 };
 
 export default function Home() {

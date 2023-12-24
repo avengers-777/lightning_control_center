@@ -28,6 +28,8 @@ import { Tools } from "@/utils/Tools";
 import { Currency, convertFloatToSmallestUnit } from "@/types/enums/Currency";
 import { ResourceConverter } from "@/types/app/ResourceConverter";
 import { ResourceDisplayType } from "@/types/enums/ResourceDisplayType";
+import { TransferRequest } from "@/types/dto/TransferRequest";
+import { TransferRecord } from "@/types/data/TransferRecord";
 // 定义 AppContext 的类型
 export interface TronAccountViewModelType {
 
@@ -61,6 +63,7 @@ export interface TronAccountViewModelType {
   setDisplayType: Dispatch<SetStateAction<ResourceDisplayType>>;
   displayType: ResourceDisplayType;
   resourceConverter:ResourceConverter;
+  transfer:(transferRequest: TransferRequest)=> Promise<void>;
 }
 
 export const TronAccountContext = createContext<TronAccountViewModelType>({
@@ -124,10 +127,15 @@ export const TronAccountContext = createContext<TronAccountViewModelType>({
     throw new Error("Function not implemented.");
   },
   displayType: ResourceDisplayType.TRX,
-  resourceConverter: new ResourceConverter({ totalEnergyWeight: 0,
+  resourceConverter: new ResourceConverter({
+    totalEnergyWeight: 0,
     totalEnergyLimit: 0,
     totalNetWeight: 0,
-    totalNetLimit: 0,})
+    totalNetLimit: 0,
+  }),
+  transfer: function (transferRequest: TransferRequest): Promise<void> {
+    throw new Error("Function not implemented.");
+  }
 });
 
 
@@ -181,14 +189,14 @@ function TronAccountViewModelProvider({ children }: StoreProviderProps) {
       queryTool.addQueryParameter({
         type: QueryType.GTE,
         where: "balance.energy",
-        args: [convertFloatToSmallestUnit(energyGTE,Currency.TRX)]
+        args: [displayType == ResourceDisplayType.TRX ? convertFloatToSmallestUnit(energyGTE,Currency.TRX) : resourceConverter.energyToTrx(energyGTE)]
       })
     }
     if (canDelegatedForEnergyGTE){
       queryTool.addQueryParameter({
         type: QueryType.GTE,
         where: "balance.canDelegatedForEnergy",
-        args: [resourceConverter.energyToTrx(canDelegatedForEnergyGTE)]
+        args: [displayType == ResourceDisplayType.TRX ? convertFloatToSmallestUnit(canDelegatedForEnergyGTE,Currency.TRX) : resourceConverter.energyToTrx(canDelegatedForEnergyGTE)]
       })
     }
     if (statusArray.length > 0){
@@ -236,6 +244,12 @@ function TronAccountViewModelProvider({ children }: StoreProviderProps) {
     }
     search()
   }
+  async function transfer(transferRequest:TransferRequest) {
+    const result = await api.post<TransferRecord>("/a/v1/pri/tron/transfer",undefined,transferRequest)
+    if (result.code == 0 && result.data){
+      Toast.success("提交成功")
+    }
+  }
   function resetQuery(){
     setQueryid(undefined)
     setAddress(undefined)
@@ -281,7 +295,8 @@ function TronAccountViewModelProvider({ children }: StoreProviderProps) {
     resetQuery,
     displayType,
     setDisplayType,
-    resourceConverter
+    resourceConverter,
+    transfer
   };
 
   return (
