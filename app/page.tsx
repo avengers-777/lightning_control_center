@@ -1,113 +1,160 @@
-import Image from 'next/image'
+"use client";
+import Image from "next/image";
+import {
+  Layout,
+  Nav,
+  Button,
+  Breadcrumb,
+  Skeleton,
+  Avatar,
+} from "@douyinfe/semi-ui";
+import {
+  IconBell,
+  IconHelpCircle,
+  IconBytedanceLogo,
+  IconHome,
+  IconHistogram,
+  IconLive,
+  IconSetting,
+  IconSemiLogo,
+  IconTopbuzzLogo,
+  IconBolt
+} from "@douyinfe/semi-icons";
+import Link from "@douyinfe/semi-ui/lib/es/anchor/link";
+import { ReactNode, useContext, useState } from "react";
+import { NavItemProps, SubNavProps } from "@douyinfe/semi-ui/lib/es/navigation";
+import { AppContext } from "./store";
+import { TronAccountManager } from "@/components/TronAccountManager";
+import { RouteProps } from "@douyinfe/semi-ui/lib/es/breadcrumb";
+
+const routerItems = [
+  // {
+  //   itemKey: "Home",
+  //   text: "首页",
+  //   icon: <IconHome size="large" />,
+  // },
+  // {
+  //   itemKey: "Histogram",
+  //   text: "基础数据",
+  //   icon: <IconHistogram size="large" />,
+  // },
+  {
+    itemKey: "Live",
+    text: "测试功能",
+    icon: <IconLive size="large" />,
+  },
+ 
+  {
+    itemKey: "TronAccountManager",
+    text: "账号管理",
+    icon: <IconTopbuzzLogo size="large"/>,
+  },
+  {
+    itemKey: "Setting",
+    text: "设置",
+    icon: <IconSetting size="large" />,
+  },
+]
+
+const routerMap: { [key: string]: ReactNode } = {
+  TronAccountManager: <TronAccountManager/>,
+};
 
 export default function Home() {
+  const {setSelectKey,setSelectItems,selectKey,selectItems} = useContext(AppContext)
+  const routes = selectItems.map(item => item.text).filter(text => text !== undefined) as (string | RouteProps)[];
+  const { Header, Footer, Sider, Content } = Layout;
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <main className="flex  w-screen h-screen m-0 overflow-hidden">
+      <Layout style={{ border: "1px solid var(--semi-color-border)" }}>
+        <Sider style={{ backgroundColor: "var(--semi-color-bg-1)" }}>
+          <Nav
+            defaultSelectedKeys={[selectKey]}
+            style={{ maxWidth: 220, height: "100%" }}
+            onSelect={(onSelectProps)=>{
+              setSelectItems(onSelectProps.selectedItems)
+              setSelectKey(onSelectProps.itemKey)
+            }}
+            items={routerItems}
+            header={{
+              logo: <IconBolt  style={{ fontSize: 36 }} />,
+              text: "Lightning Energy",
+            }}
+            footer={{
+              collapseButton: true,
+            }}
+          />
+        </Sider>
+        <Layout>
+          <Header style={{ backgroundColor: "var(--semi-color-bg-1)" }}>
+            <Nav
+              mode="horizontal"
+              footer={
+                <>
+                  <Button
+                    theme="borderless"
+                    icon={<IconBell size="large" />}
+                    style={{
+                      color: "var(--semi-color-text-2)",
+                      marginRight: "12px",
+                    }}
+                  />
+                  <Button
+                    theme="borderless"
+                    icon={<IconHelpCircle size="large" />}
+                    style={{
+                      color: "var(--semi-color-text-2)",
+                      marginRight: "12px",
+                    }}
+                  />
+                  <Avatar color="orange" size="small">
+                    YJ
+                  </Avatar>
+                </>
+              }
+            ></Nav>
+          </Header>
+          <Content
+            style={{
+              padding: "24px",
+              backgroundColor: "var(--semi-color-bg-0)",
+            }}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
+              <Breadcrumb
+        style={{
+          marginBottom: "24px",
+        }}
+        routes={routes}
+      />
+          {routerMap[selectKey]}
+          
+          </Content>
+          
+          <Footer
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "20px",
+              color: "var(--semi-color-text-2)",
+              backgroundColor: "rgba(var(--semi-grey-0), 1)",
+            }}
+          >
+            <span
+              style={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <IconBytedanceLogo size="large" style={{ marginRight: "8px" }} />
+              <span>Copyright © 2019 ByteDance. All Rights Reserved. </span>
             </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
+            <span>
+              <span style={{ marginRight: "24px" }}>平台客服</span>
+              <span>反馈建议</span>
             </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+          </Footer>
+        </Layout>
+      </Layout>
     </main>
-  )
+  );
 }

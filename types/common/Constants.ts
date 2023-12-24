@@ -1,0 +1,2 @@
+export const MIN_BANDWIDTH_USAGE = 3000;
+export const MIN_ENERGY_USAGE = 32000;
