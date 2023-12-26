@@ -1,5 +1,6 @@
 export interface TronResourceRentalOrder {
     id: string;
+    depositOrderId:string;
     receivingAccountId: string;
     lessorId: string;
     deviceId: string;

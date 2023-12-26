@@ -218,6 +218,9 @@ function TronAccountViewModelProvider({ children }: StoreProviderProps) {
     if (result.code == 0 ){
       setTronAccountList(result?.data?.map(item => new TronAccount(item)) ?? [])
       setTotal(result.count ?? 0)
+      if (result?.count  && (result?.count / size) < currentPage - 1){
+        setCurrentPage(1)
+    }
     }
     setLoading(false)
     

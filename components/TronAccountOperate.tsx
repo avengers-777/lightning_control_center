@@ -37,6 +37,7 @@ import { TransactionType } from "@/types/enums/TransactionType";
 import { Currency, convertFloatToSmallestUnit, formatAmountAsFloat } from "@/types/enums/Currency";
 import { isString } from "antd/es/button";
 import { TransferRequest } from "@/types/dto/TransferRequest";
+import Label from "@douyinfe/semi-ui/lib/es/form/label";
 
 export function TronAccountOperate({ record }: { record: TronAccount }) {
   const { Text } = Typography;
@@ -107,11 +108,9 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
         from: record.id
       }
       await transfer(body)
-      
+      setTo("")
       setTransferVisible(false);
       setTransferLoading(false)
-      await Tools.delay(5000)
-      await search()
       
     }else{
       Toast.warning("参数不正确")
@@ -148,7 +147,7 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
         查看
       </Button>
       <Modal
-        title="账号详情"
+        title="详情"
         visible={visible}
         onOk={handleOk}
         onCancel={handleCancel}
@@ -200,6 +199,7 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
         closeOnEsc={true}
         okButtonProps={{ loading: loading }}
       >
+
         <RadioGroup
           type="button"
           buttonSize="middle"
@@ -223,11 +223,14 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
         closeOnEsc={true}
         okButtonProps={{ loading: transferLoading }}
       >
-        <Space vertical spacing={"loose"} align="start">
+          
+        <Space vertical align="start">
+        <Label>账号类型</Label>
             <RadioGroup
               type="button"
               buttonSize="middle"
               aria-label="选择转账类型"
+              
               value={transferType}
               name="transfer type"
               onChange={(event) => setTransferType(event.target.value)}
@@ -238,6 +241,7 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
                 </Radio>
               ))}
             </RadioGroup>
+            <Label>货币</Label>
             <Select
               value={currency}
               onChange={handleCurrencyChange}
@@ -249,7 +253,9 @@ export function TronAccountOperate({ record }: { record: TronAccount }) {
                 </Select.Option>
               ))}
             </Select>
+            <Label>账户</Label>
             <Input style={{width:250}} placeholder={transferType == TransactionType.INTERNAL ? "ID" : "地址"} value={to} onChange={value => setTo(value)}></Input>
+            <Label>数量</Label>
             <InputNumber
             min={0}
               value={amount}

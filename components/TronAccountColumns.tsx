@@ -10,7 +10,7 @@ import { useState } from "react";
 import { TronAccountOperate } from "./TronAccountOperate";
 import { ResourceDisplayType } from "@/types/enums/ResourceDisplayType";
 
-export function createAuthorizedColumns(
+export function createTronAccountColumns(
   resourceConverter: ResourceConverter,
   displayType:ResourceDisplayType
 ): ColumnProps<TronAccount>[] {
@@ -30,8 +30,6 @@ export function createAuthorizedColumns(
     {
       title: "地址",
       dataIndex: "base58CheckAddress",
-      width: 320,
-      ellipsis: true,
     },
     {
       title: "余额",
@@ -70,7 +68,7 @@ export function createAuthorizedColumns(
     },
     {
       title: "能量状态",
-      width: 100,
+      width: 150,
       dataIndex: "balance",
       render: (text, record, index) => {
         const percent =
@@ -106,7 +104,6 @@ export function createAuthorizedColumns(
       title: "更新日期",
       dataIndex: "updateDate",
       render: (text, record, index) => {
-        console.log(record)
         return record.randerUpdateDate();
       },
     },

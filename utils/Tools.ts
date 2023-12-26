@@ -35,4 +35,30 @@ export class Tools{
           .toLocaleString();
         }
       }
+      static formatDuration(timestamp: number): string {
+        const millisecondsInSecond = 1000;
+        const secondsInMinute = 60;
+        const minutesInHour = 60;
+        const hoursInDay = 24;
+      
+        const totalSeconds = Math.floor(timestamp / millisecondsInSecond);
+        const days = Math.floor(totalSeconds / (hoursInDay * minutesInHour * secondsInMinute));
+        const hours = Math.floor((totalSeconds % (hoursInDay * minutesInHour * secondsInMinute)) / (minutesInHour * secondsInMinute));
+        const minutes = Math.floor((totalSeconds % (minutesInHour * secondsInMinute)) / secondsInMinute);
+        const seconds = totalSeconds % secondsInMinute;
+      
+        let duration = '';
+        if (days > 0) {
+          duration += `${days} days `;
+        }
+        if (hours > 0 || days > 0) { // Include hours if there are any days
+          duration += `${hours} hours `;
+        }
+        if (minutes > 0 || hours > 0 || days > 0) { // Include minutes if there are any hours or days
+          duration += `${minutes} minutes `;
+        }
+        duration += `${seconds} seconds`;
+      
+        return duration.trim();
+      }
 }

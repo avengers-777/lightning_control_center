@@ -7,6 +7,7 @@ import {
   Breadcrumb,
   Skeleton,
   Avatar,
+  Popover,
 } from "@douyinfe/semi-ui";
 import {
   IconBell,
@@ -18,7 +19,11 @@ import {
   IconSetting,
   IconSemiLogo,
   IconTopbuzzLogo,
-  IconBolt
+  IconBolt,
+  IconLink,
+  IconSend,
+  IconCreditCard,
+  IconQingyan
 } from "@douyinfe/semi-icons";
 import Link from "@douyinfe/semi-ui/lib/es/anchor/link";
 import { ReactNode, useContext, useState } from "react";
@@ -27,42 +32,56 @@ import { AppContext } from "./store";
 import { TronAccountManager } from "@/components/TronAccountManager";
 import { RouteProps } from "@douyinfe/semi-ui/lib/es/breadcrumb";
 import { NavigationTarget } from "@/types/enums/NavigationTarget";
+import { TransferRecordManager } from "@/components/TransferRecordManager";
+import { DepositOrderManager } from "@/components/DepositOrderManager";
+import { ProfileAvatarButton } from "@/components/ProfileAvatarButton";
+import { RentalOrderManager } from "@/components/RentalOrderManager";
+import { Settings } from "@/components/Settings";
+import { TronScanBlockStatus } from "@/components/TronScanBlockStatus";
 
 const routerItems = [
-  // {
-  //   itemKey: "Home",
-  //   text: "首页",
-  //   icon: <IconHome size="large" />,
-  // },
   // {
   //   itemKey: "Histogram",
   //   text: "基础数据",
   //   icon: <IconHistogram size="large" />,
   // },
   {
-    itemKey: "Live",
-    text: "测试功能",
-    icon: <IconLive size="large" />,
+    itemKey: NavigationTarget.RENTAL_ORDER_MANARGER,
+    text: "租赁订单",
+    icon: <IconQingyan    size="large" />,
   },
- 
+  {
+    itemKey: NavigationTarget.DEPOSIT_ORDER_MANARGER,
+    text: "收款订单",
+    icon: <IconCreditCard  size="large"/>,
+  },
   {
     itemKey: NavigationTarget.TRON_ACCOUNT_MANARGER,
     text: "账号管理",
     icon: <IconTopbuzzLogo size="large"/>,
   },
   {
+    itemKey: NavigationTarget.TRANSFER_RECORDS_MANARGER,
+    text: "转账记录",
+    icon: <IconSend   size="large" />,
+  },
+  {
     itemKey: NavigationTarget.SETTING,
-    text: "设置",
+    text: "系统设置",
     icon: <IconSetting size="large" />,
   },
 ]
 
 const routerMap: { [key: string]: ReactNode } = {
   TRON_ACCOUNT_MANARGER: <TronAccountManager/>,
+  TRANSFER_RECORDS_MANARGER:<TransferRecordManager/>,
+  DEPOSIT_ORDER_MANARGER:<DepositOrderManager/>,
+  RENTAL_ORDER_MANARGER:<RentalOrderManager/>,
+  SETTING:<Settings/>
 };
 
 export default function Home() {
-  const {setSelectKey,setSelectItems,selectKey,selectItems} = useContext(AppContext)
+  const {setSelectKey,setSelectItems,selectKey,selectItems,profile,logout} = useContext(AppContext)
   const routes = selectItems.map(item => item.text).filter(text => text !== undefined) as (string | RouteProps)[];
   const { Header, Footer, Sider, Content } = Layout;
   return (
@@ -92,6 +111,7 @@ export default function Home() {
               mode="horizontal"
               footer={
                 <>
+                <TronScanBlockStatus></TronScanBlockStatus>
                   <Button
                     theme="borderless"
                     icon={<IconBell size="large" />}
@@ -108,9 +128,7 @@ export default function Home() {
                       marginRight: "12px",
                     }}
                   />
-                  <Avatar color="orange" size="small">
-                    YJ
-                  </Avatar>
+                  <ProfileAvatarButton name={profile?.name} logout={logout}></ProfileAvatarButton>
                 </>
               }
             ></Nav>

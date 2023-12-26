@@ -8,7 +8,7 @@ import {
   Dispatch,
   SetStateAction,
 } from "react";
-import { Api } from "@/networking/Api";
+import { Api, Params } from "@/networking/Api";
 import { useRouter } from "next/navigation";
 import { Notification, Button, ButtonGroup } from "@douyinfe/semi-ui";
 import { NoticeReactProps } from "@douyinfe/semi-ui/lib/es/notification";
@@ -19,6 +19,7 @@ import { TokenInfo } from "@/types/dto/TokenInfo";
 import { Admin } from "@/types/data/Admin";
 import { NavItemProps, SubNavProps } from "@douyinfe/semi-ui/lib/es/navigation";
 import { AccountResourceMessage, initAccountResourceMessage } from "@/types/app/ResourceConverter";
+import { Tuple2 } from "@/types/common/Constants";
 // 定义 AppContext 的类型
 export interface AppContextType {
   logged: boolean;
@@ -32,6 +33,11 @@ export interface AppContextType {
   selectKey: string | number;
   selectItems:(NavItemProps | SubNavProps)[];
   accountResourceMessage:AccountResourceMessage;
+  changeScanBlockEnabledStatus(enabled: boolean): Promise<void>;
+  enableScanBlock: boolean;
+  scanBlockHeight: number;
+  historicalBlockData: Tuple2<number, number>;
+
 
   
 }
@@ -57,7 +63,13 @@ export const AppContext = createContext<AppContextType>({
   },
   selectKey: "Home",
   selectItems: [],
-  accountResourceMessage: initAccountResourceMessage
+  accountResourceMessage: initAccountResourceMessage,
+  changeScanBlockEnabledStatus: function (enabled: boolean): Promise<void> {
+    throw new Error("Function not implemented.");
+  },
+  enableScanBlock: false,
+  scanBlockHeight: 0,
+  historicalBlockData: {t1:0,t2:0}
 });
 
 export type StoreProviderProps = {
@@ -75,10 +87,40 @@ function StoreProvider({ children }: StoreProviderProps) {
   const [selectItems,setSelectItems] = useState<(NavItemProps | SubNavProps)[]>([])
   const [selectKey,setSelectKey] = useState<string | number>("Home")
   const [accountResourceMessage,setAccountResourceMessage] = useState<AccountResourceMessage>(initAccountResourceMessage)
+  const [enableScanBlock,setEnableScanBlock] = useState(false)
+  const [scanBlockHeight,setScanBlockHeight] = useState(0)
+  const [historicalBlockData,setHistoricalBlockData] = useState<Tuple2<number,number>>({t1:0,t2:0})
   async function getNonce(address:string) {
     const result = await api.get<string>(`/a/v1/pub/admin/nonce/ethereum/${address}`)
     if (result.data && result.code == 0){
       setNonce(result.data)
+    }
+  }
+  async function fetchScanBlockEnabledStatus() {
+    const result = await api.get<boolean>("/g/v1/status/tron/scan-block")
+    if (result.code == 0 && result.data){
+      setEnableScanBlock(result.data)
+    }
+  }
+  async function fetchCurrentTronBlockHeight() {
+    const result = await api.get<number>("/g/v1/status/tron/scan-block-height")
+    if (result.code == 0 && result.data){
+      setScanBlockHeight(result.data)
+    }
+  }
+  async function fetchBlockHeightAndTimestampHistory() {
+    const result = await api.get<Tuple2<number,number>>("/g/v1/status/tron/historical-block-data")
+    if (result.code == 0 && result.data){
+      setHistoricalBlockData(result.data)
+    }
+  }
+  async function changeScanBlockEnabledStatus(enabled:boolean) {
+    const params: Params = {
+      enabled:enabled
+    }
+    const result = await api.patch<boolean>("/a/v1/pri/status/tron/scan-block",params)
+    if (result.code == 0 && result.data != undefined){
+      setEnableScanBlock(result.data)
     }
   }
   async function logout() {
@@ -154,7 +196,19 @@ function StoreProvider({ children }: StoreProviderProps) {
     }
     
   }
+  useEffect(() => {
 
+    fetchScanBlockEnabledStatus();
+    fetchCurrentTronBlockHeight()
+    fetchBlockHeightAndTimestampHistory()
+    const interval = setInterval(() => {
+    fetchCurrentTronBlockHeight()
+    fetchBlockHeightAndTimestampHistory()
+    }, 3000); 
+
+
+    return () => clearInterval(interval);
+  }, []);
   useEffect(() => {
     const token = localStorage.getItem("t");
     if (token) {
@@ -189,7 +243,12 @@ function StoreProvider({ children }: StoreProviderProps) {
     setSelectKey,
     selectKey,
     selectItems,
-    accountResourceMessage
+    accountResourceMessage,
+    enableScanBlock,
+    scanBlockHeight,
+    historicalBlockData,
+    changeScanBlockEnabledStatus,
+    
   };
 
   return (

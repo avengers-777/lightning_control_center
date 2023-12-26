@@ -35,6 +35,19 @@ export interface QueryParameters {
         })
       }
     }
+    addDateRange(dateArray:Date[] | string [],where:string){
+      if (dateArray.length > 0){
+        this.addQueryParameter({
+          type: QueryType.GTE_AND_LTE,
+          where: where,
+          args: dateArray.map(date => {
+            if (date instanceof Date){
+              return date.getTime()
+            }
+          })
+        })
+      }
+    }
   }
 
 

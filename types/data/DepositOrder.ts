@@ -18,6 +18,6 @@ export interface DepositOrder {
     status: DepositStatus; // 假设 DepositStatus 已定义
   }
   export enum DepositStatus {
-    PENDING,
-    RECEIVED
+    PENDING = "PENDING",
+    RECEIVED = "RECEIVED"
 }

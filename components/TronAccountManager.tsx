@@ -41,8 +41,9 @@ import { Currency, formatAmountAsFloat } from "@/types/enums/Currency";
 import { ResourceConverter } from "@/types/app/ResourceConverter";
 import { AccountType } from "@/types/enums/AccountType";
 import { Col, Row } from "@douyinfe/semi-ui";
-import { createAuthorizedColumns } from "./TronAccountColumns";
+import { createTronAccountColumns } from "./TronAccountColumns";
 import { ResourceDisplayType } from "@/types/enums/ResourceDisplayType";
+import { endOfDay, startOfDay } from "@/types/common/Constants";
 export function TronAccountManager() {
   const { selectItems, accountResourceMessage } = useContext(AppContext);
   const {
@@ -78,32 +79,13 @@ export function TronAccountManager() {
   const resourceConverter = new ResourceConverter(accountResourceMessage);
   const currentDate = new Date();
 
-  // 获取当天的开始时间（00:00）
-  const startOfDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate(),
-    0,
-    0,
-    0
-  );
-
-  // 获取当天的结束时间（23:59）
-  const endOfDay = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    currentDate.getDate(),
-    23,
-    59,
-    59
-  );
   const handlePageChange = (page: number | undefined) => {
     if (page) {
       setCurrentPage(page);
     }
   };
 
-  const columns: ColumnProps<TronAccount>[] = createAuthorizedColumns(
+  const columns: ColumnProps<TronAccount>[] = createTronAccountColumns(
     resourceConverter,
     displayType
   );
@@ -159,132 +141,104 @@ export function TronAccountManager() {
     }
   }
   return (
-    <>
-      <Row gutter={[16, 24]}>
-        <Col span={24}>
-          <Row
-            gutter={[16, 24]}
-            type="flex"
-            justify="space-between"
-            align="middle"
+    <Space vertical spacing="medium" align="center">
+      <Space align="center" className="w-full" wrap>
+        <Input
+          style={{ width: 300 }}
+          placeholder="ID"
+          onChange={setQueryid}
+          value={queryId}
+        />
+        <Input
+          style={{ width: 320 }}
+          placeholder="地址"
+          onChange={setAddress}
+          value={address}
+        />
+        <InputNumber
+          style={{ width: 150 }}
+          placeholder="余额大于"
+          hideButtons
+          onChange={handleAmountChange}
+          value={amountGTE}
+        />
+        <InputNumber
+          style={{ width: 150 }}
+          placeholder="总质押能量大于"
+          hideButtons
+          onChange={handleEnergyGTEChange}
+          value={energyGTE}
+        />
+        <InputNumber
+          style={{ width: 150 }}
+          placeholder="可委托能量大于"
+          hideButtons
+          onChange={handleCanDelegatedForEnergy}
+          value={canDelegatedForEnergyGTE}
+        />
+        <DatePicker
+          type="dateTimeRange"
+          defaultPickerValue={[startOfDay, endOfDay]}
+          value={dateArray}
+          onChange={handlerDateTimeRange}
+        />
+        <Select
+          placeholder="状态"
+          multiple
+          onChange={handlerStatusSelect}
+          value={statusArray}
+        >
+          {Object.keys(Status).map((status) => (
+            <Select.Option key={status} value={status}>
+              {status}
+            </Select.Option>
+          ))}
+        </Select>
+        <Space className="w-full">
+        <Space align="start" className="flex-grow">
+          <RadioGroup
+            type="button"
+            value={accountType}
+            aria-label="账号类型"
+            name="account type"
+            onChange={(event) => {
+              setAccountType(event.target.value);
+              setCurrentPage(1);
+            }}
           >
-            <Col span={4}>
-              <Input
-                placeholder="ID"
-                onChange={(value) => setQueryid(value)}
-                value={queryId}
-              />
-            </Col>
-            <Col span={4}>
-              <Input
-                placeholder="地址"
-                onChange={(value) => setAddress(value)}
-                value={address}
-              />
-            </Col>
-            <Col span={2}>
-              <InputNumber
-                placeholder="余额大于"
-                hideButtons
-                onChange={handleAmountChange}
-                value={amountGTE}
-              />
-            </Col>
-            <Col span={2}>
-              <InputNumber
-                placeholder="总质押能量大于"
-                hideButtons
-                onChange={handleEnergyGTEChange}
-                value={energyGTE}
-              />
-            </Col>
+            {Object.keys(AccountType).map((type) => (
+              <Radio value={type} key={type}>
+                {type}
+              </Radio>
+            ))}
+          </RadioGroup>
+          <RadioGroup
+            type="button"
+            aria-label="显示类型"
+            name="desplay type"
+            value={displayType}
+            onChange={(event) => setDisplayType(event.target.value)}
+          >
+            {Object.keys(ResourceDisplayType).map((item) => (
+              <Radio key={item} value={item}>
+                {item}
+              </Radio>
+            ))}
+          </RadioGroup>
+        </Space>
+        <Space>
+          <Button type="secondary" onClick={generateAccount}>
+            生成账号
+          </Button>
+          <Button type="secondary" onClick={resetQuery}>
+            重置
+          </Button>
+          <Button onClick={search}>查询</Button>
+        </Space>
+      </Space>
+      </Space>
+     
 
-            <Col span={2}>
-              <InputNumber
-                placeholder="可委托能量大于"
-                hideButtons
-                onChange={handleCanDelegatedForEnergy}
-                value={canDelegatedForEnergyGTE}
-              />
-            </Col>
-            <Col span={5}>
-              <DatePicker
-                type="dateTimeRange"
-                defaultPickerValue={[startOfDay, endOfDay]}
-                value={dateArray}
-                onChange={handlerDateTimeRange}
-              />
-            </Col>
-            <Col span={5}>
-              <Select
-                placeholder="状态"
-                multiple
-                onChange={handlerStatusSelect}
-                value={statusArray}
-              >
-                {Object.keys(Status).map((status) => (
-                  <Select.Option key={status} value={status}>
-                    {status}
-                  </Select.Option>
-                ))}
-              </Select>
-            </Col>
-          </Row>
-          <Row
-            gutter={[16, 24]}
-            type="flex"
-            justify="space-between"
-            align="middle"
-          >
-            <Col span={16}>
-              <Space>
-              <RadioGroup
-                type="button"
-                value={accountType}
-                aria-label="账号类型"
-                name="account type"
-                onChange={(event) => {
-                  setAccountType(event.target.value);
-                  setCurrentPage(1);
-                }}
-              >
-                {Object.keys(AccountType).map((type) => (
-                  <Radio value={type} key={type}>
-                    {type}
-                  </Radio>
-                ))}
-              </RadioGroup>
-              <RadioGroup
-                type="button"
-                aria-label="显示类型"
-                name="desplay type"
-                value={displayType}
-                onChange={(event) => setDisplayType(event.target.value)}
-              >
-                {Object.keys(ResourceDisplayType).map((item) => (
-                  <Radio key={item} value={item}>
-                    {item}
-                  </Radio>
-                ))}
-              </RadioGroup>
-              </Space>
-            </Col>
-            <Col span={8}>
-              <Row type="flex" justify="end">
-                <Space>
-                  <Button type="secondary" onClick={generateAccount}>
-                    生成账号
-                  </Button>
-                  <Button type="secondary" onClick={resetQuery}>
-                    重置
-                  </Button>
-                  <Button onClick={search}>查询</Button>
-                </Space>
-              </Row>
-            </Col>
-          </Row>
-        </Col>
-      </Row>
       <Table
         resizable
         columns={columns}
@@ -297,6 +251,6 @@ export function TronAccountManager() {
         }}
         loading={loading}
       />
-    </>
+    </Space>
   );
 }
