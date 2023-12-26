@@ -4,7 +4,7 @@ import Title from "@douyinfe/semi-ui/lib/es/typography/title";
 import { useContext, useState } from "react";
 
 export function Settings() {
-    const {enableScanBlock,changeScanBlockEnabledStatus} = useContext(AppContext)
+    const {enableScanBlock,changeScanBlockEnabledStatus,darkMode,setDarkMode} = useContext(AppContext)
     const [loading,setLoading] = useState(false)
     async function onClick(checked:boolean){
         setLoading(true)
@@ -19,6 +19,15 @@ export function Settings() {
       loading={loading}
           checked={enableScanBlock}
           onChange={onClick}
+          aria-label=""
+        />
+        </Space>
+        <Space>
+      <Title heading={6}>暗黑模式</Title>
+      <Switch
+      loading={loading}
+          checked={darkMode}
+          onChange={setDarkMode}
           aria-label=""
         />
         </Space>

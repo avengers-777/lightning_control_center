@@ -37,6 +37,8 @@ export interface AppContextType {
   enableScanBlock: boolean;
   scanBlockHeight: number;
   historicalBlockData: Tuple2<number, number>;
+  darkMode: boolean;
+  setDarkMode: Dispatch<SetStateAction<boolean>>
 
 
   
@@ -69,7 +71,11 @@ export const AppContext = createContext<AppContextType>({
   },
   enableScanBlock: false,
   scanBlockHeight: 0,
-  historicalBlockData: {t1:0,t2:0}
+  historicalBlockData: { t1: 0, t2: 0 },
+  darkMode: true,
+  setDarkMode: function (value: SetStateAction<boolean>): void {
+    throw new Error("Function not implemented.");
+  }
 });
 
 export type StoreProviderProps = {
@@ -90,6 +96,7 @@ function StoreProvider({ children }: StoreProviderProps) {
   const [enableScanBlock,setEnableScanBlock] = useState(false)
   const [scanBlockHeight,setScanBlockHeight] = useState(0)
   const [historicalBlockData,setHistoricalBlockData] = useState<Tuple2<number,number>>({t1:0,t2:0})
+  const [darkMode,setDarkMode] = useState(true)
   async function getNonce(address:string) {
     const result = await api.get<string>(`/a/v1/pub/admin/nonce/ethereum/${address}`)
     if (result.data && result.code == 0){
@@ -231,6 +238,15 @@ function StoreProvider({ children }: StoreProviderProps) {
       getNonce(address)
     }
   },[address])
+  useEffect(()=>{
+    const body = document.body;
+if (darkMode){
+  body.setAttribute('theme-mode', 'dark');
+}else if (!darkMode && body.hasAttribute('theme-mode')){
+  body.removeAttribute('theme-mode');
+}
+
+  },[darkMode])
 
   const contextValue: AppContextType = {
     logged,
@@ -248,7 +264,8 @@ function StoreProvider({ children }: StoreProviderProps) {
     scanBlockHeight,
     historicalBlockData,
     changeScanBlockEnabledStatus,
-    
+    darkMode,
+    setDarkMode
   };
 
   return (
