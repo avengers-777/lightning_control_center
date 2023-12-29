@@ -21,7 +21,7 @@ import { DepositOrder, DepositStatus } from "@/types/data/DepositOrder";
 import { DepositOrderOperate } from "./DepositOrderOperate";
 import { Status, TronResourceRentalOrder } from "@/types/data/TronResourceRentalOrder";
 import { RentalOrderOperate } from "./RentalOrderOperate";
-import { ProgressStatus } from "./RentalOrderStatus";
+import { ProgressStatus } from "./ProgressStatus";
 
 export function createRentalOrderColumns(): ColumnProps<TronResourceRentalOrder>[] {
   return  [

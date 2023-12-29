@@ -20,6 +20,7 @@ import { Admin } from "@/types/data/Admin";
 import { NavItemProps, SubNavProps } from "@douyinfe/semi-ui/lib/es/navigation";
 import { AccountResourceMessage, initAccountResourceMessage } from "@/types/app/ResourceConverter";
 import { Tuple2 } from "@/types/common/Constants";
+import { NavigationTarget } from "@/types/enums/NavigationTarget";
 // 定义 AppContext 的类型
 export interface AppContextType {
   logged: boolean;
@@ -91,7 +92,7 @@ function StoreProvider({ children }: StoreProviderProps) {
   const [address, setAddress] = useState<string | undefined>();
   const [nonce,setNonce] = useState<string | undefined>()
   const [selectItems,setSelectItems] = useState<(NavItemProps | SubNavProps)[]>([])
-  const [selectKey,setSelectKey] = useState<string | number>("Home")
+  const [selectKey,setSelectKey] = useState<string | number>(NavigationTarget.RENTAL_ORDER_MANARGER)
   const [accountResourceMessage,setAccountResourceMessage] = useState<AccountResourceMessage>(initAccountResourceMessage)
   const [enableScanBlock,setEnableScanBlock] = useState(false)
   const [scanBlockHeight,setScanBlockHeight] = useState(0)
@@ -211,7 +212,7 @@ function StoreProvider({ children }: StoreProviderProps) {
     const interval = setInterval(() => {
     fetchCurrentTronBlockHeight()
     fetchBlockHeightAndTimestampHistory()
-    }, 3000); 
+    }, 30000); 
 
 
     return () => clearInterval(interval);

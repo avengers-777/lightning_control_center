@@ -19,7 +19,7 @@ import { TransferRecord } from "@/types/data/TransferRecord";
 import { TransferRecordOperate } from "./TransferRecordOperate";
 import { DepositOrder, DepositStatus } from "@/types/data/DepositOrder";
 import { DepositOrderOperate } from "./DepositOrderOperate";
-import { ProgressStatus } from "./RentalOrderStatus";
+import { ProgressStatus } from "./ProgressStatus";
 
 export function createDepositOrderColumns(): ColumnProps<DepositOrder>[] {
   return  [
