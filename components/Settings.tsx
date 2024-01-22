@@ -25,7 +25,6 @@ export function Settings() {
         <Space>
       <Title heading={6}>暗黑模式</Title>
       <Switch
-      loading={loading}
           checked={darkMode}
           onChange={setDarkMode}
           aria-label=""

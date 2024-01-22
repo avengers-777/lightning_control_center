@@ -11,7 +11,7 @@ export function TronScanBlockStatus(){
         { key: '最新高度', value: BlockUtils.getBlockHeightByTimestamp(historicalBlockData.t1,historicalBlockData.t2,new Date().getTime()).toFixed(0) },
 
         { key: '当前扫描高度', value: scanBlockHeight },
-        { key: '高度差', value: <span style={blockHeightDifference > 5 ? {color:"red" } : undefined}>{blockHeightDifference.toFixed(0)}</span> }
+        { key: '高度差', value: <span style={blockHeightDifference > 15 ? {color:"red" } : undefined}>{blockHeightDifference.toFixed(0)}</span> }
        
     ];
     return (
